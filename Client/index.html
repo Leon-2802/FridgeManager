@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Übersichtseite</title>
+    <link rel="stylesheet" href="styles/basic.css">
+    <link rel="stylesheet" href="styles/index.css">
+</head>
+<body>
+    <header>
+        <h1>Mein Kühlschrank</h1>
+    </header>
+
+    <main>
+        <p>
+            <script>document.write(new Date().toLocaleDateString());</script>
+        </p>
+        <div id=btn-wrapper>
+            <button id="filter-btn">Filter setzen...</button>
+            <button id="add-btn"><a href="addItem.html">Neue Ware hinzufügen</a></button>
+        </div>
+
+        <table id="fridge-table">
+            <th>Fach</th>
+            <tr id="fach1">
+                <td>&#129385; Wurst <br> 12.02.22</td>
+                <td>&#129371; Käse <br> 12.02.22</td>
+                <td>&#129382; Zuccini <br> 12.02.22</td>
+            </tr>
+            <tr id="fach2">
+                <td>&#129380; Cola <br> 12.02.22</td>
+                <td>&#129371; Joghurt <br> 12.02.22</td>
+                <td>&#129382; Aubergine <br> 12.02.22</td>
+            </tr>
+            <tr id="fach3">
+                <td>&#63; Marmelade <br> 12.02.22</td>
+                <td>&#127851; Twix <br> 12.02.22</td>
+                <td>&#129380; Hafermilch <br> 12.02.22</td>
+            </tr>
+        </table>
+    </main>
+
+    <footer>
+
+    </footer>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anlegen/Bearbeiten</title>
+    <link rel="stylesheet" href="styles/basic.css">
+    <link rel="stylesheet" href="styles/addItem.css">
+</head>
+<body>
+    <p>
+        <script>document.write(new Date().toLocaleDateString());</script>
+    </p>
+    <button id="back"><a href="index.html">Back</a></button>
+    <form>
+        <select class="form" id="category" required> 
+            <option disabled selected value>Wähle eine Produkt-Kategorie</option>
+            <option value="fleisch">&#129385; Fleisch</option>
+            <option value="milchprodukte">&#129371; Milchprodukte</option>
+            <option value="gemuese">&#129382; Gemüse</option>
+            <option value="getraenke">&#129380; Getränke</option>
+            <option value="snack">&#127851; Snacks</option>
+            <option value="other">&#63; Sonstiges</option>
+        </select><br>
+
+        <input class="form" id="name" type="text" placeholder="Name des Produkts" required>
+
+        <div>
+            <label value="ablaufdatum">Ablaufdatum:</label><br>
+            <input class="form" id="ablaufdatum" type="date" required>
+        </div>
+        
+        <textarea class="form" id="notes" placeholder="Füge Notizen hinzu..."></textarea><br>
+
+        <button id="submit">Speichern</button>
+    </form>
+</body>
+</html>

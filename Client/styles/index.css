@@ -1,0 +1,31 @@
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 6%;
+}
+
+table {
+    margin-top: 3%;
+    margin-left: 10%;
+    margin-bottom: 10%;
+    width: 80%;
+    border-collapse: collapse;
+}
+table, th, td {
+    border: 1px solid white;
+}
+th {
+    text-align: start;
+}
+
+#btn-wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+#filter-btn {
+    margin-left: 10%;
+}
+#add-btn {
+    margin-right: 10%;
+}

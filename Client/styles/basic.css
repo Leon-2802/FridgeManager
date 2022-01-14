@@ -1,0 +1,21 @@
+body {
+    background-color: rgb(31, 31, 31);
+    color: rgb(216, 216, 216);
+}
+button {
+    width: 160px;
+    height: 25px;
+    background-color: rgba(150, 180, 0, 0);
+    border: 1px solid #fff;
+    color: white;
+    font-size: 14px;
+}
+button:hover {
+    background-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    font-style: italic;
+}
+a {
+    text-decoration: none;
+    color: white;
+}
