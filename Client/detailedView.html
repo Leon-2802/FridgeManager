@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailansicht</title>
+    <link rel="stylesheet" href="styles/basic.css">
+    <link rel="stylesheet" href="styles/detailedView.css">
+    <script src="script/GetDetailsFromServer.js" defer></script>
+</head>
+<body>
+    <button id="back"><a href="index.html">Zurück</a></button>
+    <p>
+        <script>document.write(new Date().toLocaleDateString());</script>
+    </p>
+    <div id="content-wrapper">
+        <div id="item">
+            <h2 id="category+name"></h2>
+            <h3 id="expiry">Ablaufdatum<br></h3>
+            <h3 id="postDate">Anlegedatum<br></h3>
+            <div id="note-field">
+                <h3>Notizen:</h3>
+                <p id="notes"></p>
+            </div>
+        </div>
+        <div id="buttons">
+            <button id="edit">Bearbeiten</button><br><br>
+            <button id="delete">Löschen</button>
+        </div>
+    </div>
+</body>
+</html>

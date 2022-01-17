@@ -1,0 +1,13 @@
+#content-wrapper {
+    display: flex;
+    justify-content: center;
+}
+#buttons {
+    margin-left: 20%;
+}
+#note-field {
+    width: 300px;
+    height: auto;
+    border: 1px solid #fff;
+
+}
