@@ -5,9 +5,6 @@ form {
     margin-bottom: 10%;
     width: 60%;
 }
-textarea {
-    height: 80px;
-}
 label {
     font-size: 15px;
 }
@@ -26,6 +23,9 @@ label {
     box-shadow: 0 0 0 1px rgb(194, 194, 194);
 }
 
+#notes {
+    height: 80px;
+}
 #submit {
     width: 20%;
     margin-left: 40%;

@@ -42,6 +42,7 @@ var hostname = "127.0.0.1"; // localhost
 var port = 3000;
 var mongoUrl = "mongodb://localhost:27017"; // für lokale MongoDB
 var mongoClient = new mongo.MongoClient(mongoUrl);
+var item;
 // tslint:disable-next-line:typedef
 function dbFind(
 // tslint:disable-next-line:no-any
@@ -66,19 +67,22 @@ db, collection, requestObject, response) {
     });
 }
 var server = http.createServer(function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, _a, _b, jsonString_1, _c;
+    var url, _a, _b, jsonString_1, jsonStringUpdate_1, _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
             case 0:
                 response.statusCode = 200;
-                response.setHeader("Access-Control-Allow-Origin", "GET, POST, OPTIONS, PUT, DELETE, UPDATE"); // bei CORS Fehler
+                response.setHeader("Access-Control-Allow-Origin", "*"); // bei CORS Fehler
+                response.setHeader("Access-Control-Allow-Credentials", "true");
+                response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE, UPDATE");
+                response.setHeader("Access-Control-Allow-Headers", "X_Token, Content-Type");
                 url = new URL(request.url || "", "http://" + request.headers.host);
                 _a = url.pathname;
                 switch (_a) {
                     case "/item": return [3 /*break*/, 1];
-                    case "/items": return [3 /*break*/, 8];
+                    case "/items": return [3 /*break*/, 9];
                 }
-                return [3 /*break*/, 13];
+                return [3 /*break*/, 15];
             case 1: return [4 /*yield*/, mongoClient.connect()];
             case 2:
                 _d.sent();
@@ -87,14 +91,15 @@ var server = http.createServer(function (request, response) { return __awaiter(v
                     case "GET": return [3 /*break*/, 3];
                     case "POST": return [3 /*break*/, 5];
                     case "DELETE": return [3 /*break*/, 6];
+                    case "PATCH": return [3 /*break*/, 7];
                 }
-                return [3 /*break*/, 7];
+                return [3 /*break*/, 8];
             case 3: return [4 /*yield*/, dbFind("fridge", "items", {
                     index: Number(url.searchParams.get("index")) // von String zu Zahl konvertieren
                 }, response)];
             case 4:
                 _d.sent();
-                return [3 /*break*/, 7];
+                return [3 /*break*/, 8];
             case 5:
                 jsonString_1 = "";
                 request.on("data", function (data) {
@@ -109,7 +114,7 @@ var server = http.createServer(function (request, response) { return __awaiter(v
                         return [2 /*return*/];
                     });
                 }); });
-                return [3 /*break*/, 7];
+                return [3 /*break*/, 8];
             case 6:
                 request.on("end", function () { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
@@ -122,25 +127,53 @@ var server = http.createServer(function (request, response) { return __awaiter(v
                         return [2 /*return*/];
                     });
                 }); });
-                return [3 /*break*/, 7];
-            case 7: return [3 /*break*/, 14];
-            case 8: return [4 /*yield*/, mongoClient.connect()];
-            case 9:
+                return [3 /*break*/, 8];
+            case 7:
+                jsonStringUpdate_1 = "";
+                request.on("data", function (data) {
+                    jsonStringUpdate_1 += data;
+                    item = JSON.parse(jsonStringUpdate_1);
+                });
+                request.on("end", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        mongoClient
+                            .db("fridge")
+                            .collection("items")
+                            .updateOne({ index: Number(url.searchParams.get("index")) }, { $set: { "category": item.category, "name": item.name, "expiryDate": item.expiryDate, "notes": item.notes } });
+                        return [2 /*return*/];
+                    });
+                }); });
+                return [3 /*break*/, 8];
+            case 8: return [3 /*break*/, 16];
+            case 9: return [4 /*yield*/, mongoClient.connect()];
+            case 10:
                 _d.sent();
                 _c = request.method;
                 switch (_c) {
-                    case "GET": return [3 /*break*/, 10];
+                    case "GET": return [3 /*break*/, 11];
+                    case "DELETE": return [3 /*break*/, 13];
                 }
-                return [3 /*break*/, 12];
-            case 10: return [4 /*yield*/, dbFind("fridge", "items", {}, response)];
-            case 11:
+                return [3 /*break*/, 14];
+            case 11: return [4 /*yield*/, dbFind("fridge", "items", {}, response)];
+            case 12:
                 _d.sent();
-                return [3 /*break*/, 12];
-            case 12: return [3 /*break*/, 14];
+                return [3 /*break*/, 14];
             case 13:
+                request.on("end", function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        mongoClient
+                            .db("fridge")
+                            .collection("items")
+                            .deleteMany({});
+                        return [2 /*return*/];
+                    });
+                }); });
+                return [3 /*break*/, 14];
+            case 14: return [3 /*break*/, 16];
+            case 15:
                 response.statusCode = 404;
-                _d.label = 14;
-            case 14:
+                _d.label = 16;
+            case 16:
                 response.end();
                 return [2 /*return*/];
         }
@@ -150,7 +183,7 @@ server.listen(port, hostname, function () {
     console.log("Server running at http://" + hostname + ":" + port + "/");
 });
 //Starten mit: node ./Server/script/server.js
-/* MongoDB Datenbanksystem starten (Warum eigtl auf einmal?!):
+/* MongoDB Datenbanksystem starten (bei zipInstall):
 cd C:\Programme\MongoDB
-zipInstall\bin\mongod.exe --dbpath c:\Programme\MongoDB\data\db */ 
+zipInstall\bin\mongod.exe --dbpath c:\Programme\MongoDB\data\db*/ 
 //# sourceMappingURL=server.js.map

@@ -35,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var table = document.getElementById("fridge-table");
+var currentDate = document.getElementById("dateSlot");
 var _url = "http://127.0.0.1:3000/";
 var portSingle = "item";
 var portAll = "items";
@@ -49,7 +50,10 @@ function getItemsFromServer(event) {
             switch (_a.label) {
                 case 0:
                     event.preventDefault();
-                    return [4 /*yield*/, fetch(_url + portAll)];
+                    currentDate.innerHTML = new Date().toLocaleDateString();
+                    return [4 /*yield*/, fetch(_url + portAll, {
+                            method: "GET"
+                        })];
                 case 1:
                     response = _a.sent();
                     return [4 /*yield*/, response.text()];
@@ -70,8 +74,7 @@ function loadIntoTable() {
         var eintrag = document.createElement("td");
         var button = document.createElement("a");
         button.innerHTML = itemsFromServer[i].category + " " + itemsFromServer[i].name + "<br>" + itemsFromServer[i].expiryDate;
-        button.href = "detailedView.html?index=" + i;
-        button.id = i.toString();
+        button.href = "detailedView.html?index=" + itemsFromServer[i].index;
         eintrag.appendChild(button);
         newRow.appendChild(eintrag);
     }

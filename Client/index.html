@@ -7,8 +7,8 @@
     <title>Übersichtseite</title>
     <link rel="stylesheet" href="styles/basic.css">
     <link rel="stylesheet" href="styles/index.css">
-    <script>var exports = {};</script>
     <script src="script/GetItemsFromServer.js" defer></script>
+    <script src="script/Filter.js" defer></script>
 </head>
 <body>
     <header>
@@ -16,11 +16,20 @@
     </header>
 
     <main>
-        <p>
-            <script>document.write(new Date().toLocaleDateString());</script>
-        </p>
+        <p id="dateSlot"></p>
         <div id=btn-wrapper>
             <button id="filter-btn">Filter setzen...</button>
+            <select class="filter" id="filter-input">
+                <option disabled selected value>Filter nach Kategorie</option>
+                <option value="fleisch">&#129385; Fleisch</option>
+                <option value="milchprodukte">&#129371; Milchprodukte</option>
+                <option value="gemuese">&#129382; Gemüse</option>
+                <option value="getraenke">&#129380; Getränke</option>
+                <option value="snack">&#127851; Snacks</option>
+                <option value="other">&#63; Sonstiges</option>
+            </select>
+            <button class="filter" id="expired">Schon abgelaufen</button>
+            <button class="filter" id="submit-filter">Bestätigen</button>
             <button id="add-btn"><a href="addItem.html">Neue Ware hinzufügen</a></button>
         </div>
 

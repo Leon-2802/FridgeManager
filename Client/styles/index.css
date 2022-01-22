@@ -19,12 +19,32 @@ th {
     text-align: start;
 }
 
+.filter {
+    display: none;
+}
+
+#filter-input {
+    background-color: rgb(31, 31, 31);
+    color: rgb(216, 216, 216);
+    border: 1px solid #fff;
+}
+#filter-input:focus {
+    outline: 0;
+    box-shadow: 0 0 0 1px rgb(194, 194, 194);
+}
+
 #btn-wrapper {
     display: flex;
     justify-content: space-between;
 }
 #filter-btn {
     margin-left: 10%;
+}
+#expired {
+    width: 150px;
+}
+#submit-filter {
+    width: 100px;
 }
 #add-btn {
     margin-right: 10%;

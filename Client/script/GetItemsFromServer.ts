@@ -1,4 +1,5 @@
 const table: HTMLTableElement = <HTMLTableElement> document.getElementById("fridge-table");
+const currentDate: HTMLParagraphElement = <HTMLParagraphElement> document.getElementById("dateSlot");
 
 const _url: string = "http://127.0.0.1:3000/";
 const portSingle: string = "item";
@@ -26,7 +27,11 @@ window.addEventListener("load", getItemsFromServer);
 async function getItemsFromServer(event: Event): Promise<void> {
     event.preventDefault();
 
-    let response: Response = await fetch(_url + portAll);
+    currentDate.innerHTML = new Date().toLocaleDateString();
+
+    let response: Response = await fetch(_url + portAll, {
+        method: "GET"
+    });
     let text: string = await response.text();
 
     itemsFromServer = JSON.parse(text);
@@ -43,8 +48,7 @@ function loadIntoTable(): void {
         let eintrag: HTMLElement = document.createElement("td");
         let button: HTMLAnchorElement = <HTMLAnchorElement> document.createElement("a");
         button.innerHTML = itemsFromServer[i].category + " " + itemsFromServer[i].name + "<br>" + itemsFromServer[i].expiryDate;
-        button.href = `detailedView.html?index=${i}`;
-        button.id = i.toString();
+        button.href = `detailedView.html?index=${itemsFromServer[i].index}`;
         eintrag.appendChild(button);
         newRow.appendChild(eintrag);
     }

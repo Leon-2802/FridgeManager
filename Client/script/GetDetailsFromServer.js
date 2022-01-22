@@ -41,6 +41,8 @@ var Details;
     var postDate = document.getElementById("postDate");
     var notes = document.getElementById("notes");
     var deleteBtn = document.getElementById("delete");
+    var editBtn = document.getElementById("edit");
+    var currentDate = document.getElementById("currentDate");
     var _url = "http://127.0.0.1:3000/";
     var portSingle = "item";
     var params = new URLSearchParams(window.location.search);
@@ -49,12 +51,14 @@ var Details;
     var selectedItem = [];
     window.addEventListener("load", getSelectedItem);
     deleteBtn.addEventListener("click", deleteItem);
-    function getSelectedItem() {
+    function getSelectedItem(event) {
         return __awaiter(this, void 0, void 0, function () {
             var text;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        event.preventDefault();
+                        currentDate.innerHTML = new Date().toLocaleDateString();
                         text = "";
                         return [4 /*yield*/, requestTextWithGet(_url + portSingle + index)];
                     case 1:
@@ -63,6 +67,8 @@ var Details;
                         selectedItem = JSON.parse(text);
                         console.log(selectedItem);
                         loadIntoDOM(selectedItem);
+                        //link für edit-Button:
+                        editBtn.href = "addItem.html" + index;
                         return [2 /*return*/];
                 }
             });
@@ -94,6 +100,10 @@ var Details;
                     case 1:
                         _a.sent();
                         console.log("deleted");
+                        nameAndCategory.innerHTML = "Gelöscht";
+                        expiry.innerHTML = "Gelöscht";
+                        postDate.innerHTML = "Gelöscht";
+                        notes.innerHTML = "Gelöscht";
                         return [2 /*return*/];
                 }
             });

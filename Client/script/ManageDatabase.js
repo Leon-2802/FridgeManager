@@ -41,11 +41,24 @@ var ManageDatabase;
     var selectDate = document.getElementById("ablaufdatum");
     var addNotes = document.getElementById("notes");
     var submit = document.getElementById("submit");
+    var currentDate = document.getElementById("currentDate");
     var _url = "http://127.0.0.1:3000/";
     var portSingle = "item";
     var portAll = "items";
     var itemsFromServer = [];
-    submit.addEventListener("click", onSubmit);
+    if (window.location.href.indexOf("?index") > -1) {
+        var params = new URLSearchParams(window.location.search);
+        var index = "?index=" + params.get("index");
+        submit.innerHTML = "Aktualisieren";
+        setCurrentDate();
+        getSelectedItem(index);
+        submit.addEventListener("click", submitUpdate);
+    }
+    else {
+        setCurrentDate();
+        submit.addEventListener("click", onSubmit);
+    }
+    //Fürs Hochladen:
     function onSubmit(event) {
         return __awaiter(this, void 0, void 0, function () {
             var item;
@@ -57,16 +70,17 @@ var ManageDatabase;
                             return [2 /*return*/];
                         event.preventDefault();
                         _a = {};
-                        return [4 /*yield*/, getItemsFromServer()];
+                        return [4 /*yield*/, setIndex()];
                     case 1:
                         item = (_a.index = _b.sent(),
                             _a.category = returnCategory(selectCategory.value),
                             _a.name = selectName.value,
-                            _a.expiryDate = selectDate.value,
+                            _a.expiryDate = setDateFormat(selectDate.value),
                             _a.submitDate = new Date().toLocaleDateString(),
                             _a.notes = addNotes.value,
                             _a);
-                        console.log(item);
+                        itemsFromServer.push(item);
+                        console.log(itemsFromServer);
                         sendJSONStringWithPost(_url + portSingle, JSON.stringify(item));
                         setTimeout(function () {
                             clearInput();
@@ -100,40 +114,160 @@ var ManageDatabase;
             });
         });
     }
-    function getItemsFromServer() {
+    function setIndex() {
         return __awaiter(this, void 0, void 0, function () {
-            var response, text;
+            var response, text, result, i;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetch(_url + portAll)];
+                    case 0: return [4 /*yield*/, fetch(_url + portAll, {
+                            method: "GET"
+                        })];
                     case 1:
                         response = _a.sent();
                         return [4 /*yield*/, response.text()];
                     case 2:
                         text = _a.sent();
                         itemsFromServer = JSON.parse(text);
-                        return [2 /*return*/, itemsFromServer.length];
+                        console.log(itemsFromServer);
+                        result = 0;
+                        for (i = 0; i < itemsFromServer.length; i++) {
+                            if (itemsFromServer[i].index > result) {
+                                result = itemsFromServer[i].index;
+                            }
+                        }
+                        result++;
+                        console.log(result);
+                        return [2 /*return*/, result];
                 }
             });
         });
     }
+    //Bei Bearbeiten:
+    function getSelectedItem(index) {
+        return __awaiter(this, void 0, void 0, function () {
+            var text;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        text = "";
+                        return [4 /*yield*/, requestTextWithGet(_url + portSingle + index)];
+                    case 1:
+                        text = _a.sent();
+                        console.log(text);
+                        itemsFromServer = JSON.parse(text);
+                        console.log(itemsFromServer);
+                        loadIntoDOM();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function requestTextWithGet(url) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, text;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, fetch(url)];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.text()];
+                    case 2:
+                        text = _a.sent();
+                        return [2 /*return*/, text];
+                }
+            });
+        });
+    }
+    function submitUpdate(event) {
+        return __awaiter(this, void 0, void 0, function () {
+            var item, index;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        event.preventDefault();
+                        item = {
+                            index: itemsFromServer[0].index,
+                            category: returnCategory(selectCategory.value),
+                            name: selectName.value,
+                            expiryDate: setDateFormat(selectDate.value),
+                            submitDate: itemsFromServer[0].submitDate,
+                            notes: addNotes.value
+                        };
+                        itemsFromServer[0] = item;
+                        console.log(itemsFromServer[0]);
+                        index = "?index=" + itemsFromServer[0].index;
+                        return [4 /*yield*/, fetch(_url + portSingle + index, {
+                                method: "PATCH",
+                                body: JSON.stringify(itemsFromServer[0])
+                            })];
+                    case 1:
+                        _a.sent();
+                        console.log("updated");
+                        setTimeout(function () {
+                            window.location.href = "index.html";
+                        }, 200);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    }
+    //Nicht-async functions:
+    function setCurrentDate() {
+        currentDate.innerHTML = new Date().toLocaleDateString();
+    }
+    function loadIntoDOM() {
+        selectCategory.value = returnCategoryForEdit(itemsFromServer[0].category);
+        selectName.value = itemsFromServer[0].name;
+        selectDate.value = itemsFromServer[0].expiryDate;
+        addNotes.value = itemsFromServer[0].notes;
+    }
     function returnCategory(input) {
         switch (input) {
-            case "&#129385; Fleisch":
+            case "fleisch":
                 return "&#129385;";
-            case "&#129371; Milchprodukte":
+            case "milchprodukte":
                 return "&#129371;";
-            case "&#129382; Gemüse":
+            case "gemuese":
                 return "&#129382;";
-            case "&#129380; Getränke":
+            case "getraenke":
                 return "&#129380;";
-            case "&#127851; Snacks":
+            case "snack":
                 return "&#127851;";
-            case "&#63; Sonstiges":
+            case "other":
                 return "&#63;";
             default:
                 return "&#63;";
         }
+    }
+    function returnCategoryForEdit(data) {
+        switch (data) {
+            case "&#129385;":
+                return "fleisch";
+            case "&#129371;":
+                return "milchprodukte";
+            case "&#129382;":
+                return "gemuese";
+            case "&#129380;":
+                return "getraenke";
+            case "&#127851;":
+                return "snack";
+            case "&#63;":
+                return "other";
+            default:
+                return "other";
+        }
+    }
+    function setDateFormat(date) {
+        var year = date.substring(0, 4);
+        var month = date.substring(5, 7);
+        var day = date.substring(8, 10);
+        if (month.substring(0, 1) == "0") {
+            month = month.substring(1, 2);
+        }
+        if (day.substring(0, 1) == "0") {
+            day = day.substring(1, 2);
+        }
+        return day + "." + month + "." + year;
     }
     function clearInput() {
         selectCategory.value = "";

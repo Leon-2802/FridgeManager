@@ -11,9 +11,7 @@
 </head>
 <body>
     <button id="back"><a href="index.html">Zurück</a></button>
-    <p>
-        <script>document.write(new Date().toLocaleDateString());</script>
-    </p>
+    <p id="currentDate"></p>
     <div id="content-wrapper">
         <div id="item">
             <h2 id="category+name"></h2>
@@ -25,7 +23,7 @@
             </div>
         </div>
         <div id="buttons">
-            <button id="edit">Bearbeiten</button><br><br>
+            <button><a id="edit" href="index.html">Bearbeiten</a></button><br><br>
             <button id="delete">Löschen</button>
         </div>
     </div>

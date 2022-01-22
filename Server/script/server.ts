@@ -6,6 +6,16 @@ const port: number = 3000;
 const mongoUrl: string = "mongodb://localhost:27017"; // für lokale MongoDB
 let mongoClient: mongo.MongoClient = new mongo.MongoClient(mongoUrl);
 
+interface Item {
+  index: number;
+  category: string;
+  name: string;
+  expiryDate: string;
+  submitDate: string;
+  notes: string;
+}
+let item: Item;
+
 // tslint:disable-next-line:typedef
 async function dbFind (
     // tslint:disable-next-line:no-any
@@ -25,7 +35,10 @@ const server: http.Server = http.createServer(
   async (request: http.IncomingMessage, response: http.ServerResponse) => {
 
     response.statusCode = 200;
-    response.setHeader("Access-Control-Allow-Origin", "GET, POST, OPTIONS, PUT, DELETE, UPDATE"); // bei CORS Fehler
+    response.setHeader("Access-Control-Allow-Origin", "*"); // bei CORS Fehler
+    response.setHeader("Access-Control-Allow-Credentials", "true");
+    response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE, UPDATE");
+    response.setHeader("Access-Control-Allow-Headers", "X_Token, Content-Type");
 
     let url: URL = new URL(request.url || "", `http://${request.headers.host}`);
 
@@ -65,6 +78,22 @@ const server: http.Server = http.createServer(
                 });
             });
             break;
+          case "PATCH":
+            let jsonStringUpdate: string = "";
+            request.on("data", data => {
+              jsonStringUpdate += data;
+              item = JSON.parse(jsonStringUpdate);
+            });
+            request.on("end", async () => {
+              mongoClient
+                .db("fridge")
+                .collection("items")
+                .updateOne(
+                  {index: Number(url.searchParams.get("index"))},         
+                  {$set: {"category": item.category, "name": item.name, "expiryDate": item.expiryDate, "notes": item.notes}}
+                );
+            });
+            break;
         }
         break;
       }
@@ -73,6 +102,14 @@ const server: http.Server = http.createServer(
         switch (request.method) {
           case "GET":
             await dbFind("fridge", "items", {}, response);
+            break;
+          case "DELETE":
+            request.on("end", async () => {
+              mongoClient
+                .db("fridge")
+                .collection("items")
+                .deleteMany({});
+            });
             break;
         }
         break;
@@ -90,6 +127,6 @@ server.listen(port, hostname, () => {
 
 //Starten mit: node ./Server/script/server.js
 
-/* MongoDB Datenbanksystem starten (Warum eigtl auf einmal?!):
-cd C:\Programme\MongoDB
-zipInstall\bin\mongod.exe --dbpath c:\Programme\MongoDB\data\db */
+/* MongoDB Datenbanksystem starten (bei zipInstall):
+cd C:\Programme\MongoDB 
+zipInstall\bin\mongod.exe --dbpath c:\Programme\MongoDB\data\db*/

@@ -5,6 +5,8 @@ namespace Details {
     const postDate: HTMLElement = document.getElementById("postDate");
     const notes: HTMLElement = document.getElementById("notes");
     const deleteBtn: HTMLButtonElement = <HTMLButtonElement> document.getElementById("delete");
+    const editBtn: HTMLAnchorElement = <HTMLAnchorElement> document.getElementById("edit");
+    const currentDate: HTMLParagraphElement = <HTMLParagraphElement> document.getElementById("currentDate");
 
     const _url: string = "http://127.0.0.1:3000/";
     const portSingle: string = "item";
@@ -28,7 +30,11 @@ namespace Details {
     deleteBtn.addEventListener("click", deleteItem);
 
 
-    async function getSelectedItem(): Promise<void> {
+    async function getSelectedItem(event: Event): Promise<void> {
+        event.preventDefault();
+
+        currentDate.innerHTML = new Date().toLocaleDateString();
+
         let text: string = "";
         text = await requestTextWithGet(_url + portSingle + index);
         console.log(text);
@@ -38,6 +44,9 @@ namespace Details {
         console.log(selectedItem);
 
         loadIntoDOM(selectedItem);
+
+        //link für edit-Button:
+        editBtn.href = `addItem.html${index}`;
     }
 
     async function requestTextWithGet(url: RequestInfo): Promise<string> {
@@ -51,6 +60,11 @@ namespace Details {
             method: "DELETE"
         });
         console.log("deleted");
+
+        nameAndCategory.innerHTML = "Gelöscht";
+        expiry.innerHTML = "Gelöscht";
+        postDate.innerHTML = "Gelöscht";
+        notes.innerHTML = "Gelöscht";
     }
 
     function loadIntoDOM(item: Item[]): void {
