@@ -75,8 +75,8 @@ var ManageDatabase;
                         item = (_a.index = _b.sent(),
                             _a.category = returnCategory(selectCategory.value),
                             _a.name = selectName.value,
-                            _a.expiryDate = setDateFormat(selectDate.value),
-                            _a.submitDate = new Date().toLocaleDateString(),
+                            _a.expiryDate = new Date(selectDate.value),
+                            _a.submitDate = new Date(),
                             _a.notes = addNotes.value,
                             _a);
                         itemsFromServer.push(item);
@@ -189,7 +189,7 @@ var ManageDatabase;
                             index: itemsFromServer[0].index,
                             category: returnCategory(selectCategory.value),
                             name: selectName.value,
-                            expiryDate: setDateFormat(selectDate.value),
+                            expiryDate: new Date(selectDate.value),
                             submitDate: itemsFromServer[0].submitDate,
                             notes: addNotes.value
                         };
@@ -213,12 +213,12 @@ var ManageDatabase;
     }
     //Nicht-async functions:
     function setCurrentDate() {
-        currentDate.innerHTML = new Date().toLocaleDateString();
+        currentDate.innerHTML = "Heutiges Datum: " + new Date().toLocaleDateString();
     }
     function loadIntoDOM() {
         selectCategory.value = returnCategoryForEdit(itemsFromServer[0].category);
         selectName.value = itemsFromServer[0].name;
-        selectDate.value = itemsFromServer[0].expiryDate;
+        selectDate.value = setDateFormat(new Date(itemsFromServer[0].expiryDate));
         addNotes.value = itemsFromServer[0].notes;
     }
     function returnCategory(input) {
@@ -258,16 +258,9 @@ var ManageDatabase;
         }
     }
     function setDateFormat(date) {
-        var year = date.substring(0, 4);
-        var month = date.substring(5, 7);
-        var day = date.substring(8, 10);
-        if (month.substring(0, 1) == "0") {
-            month = month.substring(1, 2);
-        }
-        if (day.substring(0, 1) == "0") {
-            day = day.substring(1, 2);
-        }
-        return day + "." + month + "." + year;
+        var offset = date.getTimezoneOffset();
+        date = new Date(date.getTime() - (offset * 60 * 1000));
+        return date.toISOString().split("T")[0];
     }
     function clearInput() {
         selectCategory.value = "";

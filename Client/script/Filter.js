@@ -38,38 +38,99 @@ var Filter;
 (function (Filter) {
     var table = document.getElementById("fridge-table");
     var filterBtn = document.getElementById("filter-btn");
+    var fliterElements = document.getElementsByClassName("filter");
     var categoryFilter = document.getElementById("filter-input");
+    var nameFilter = document.getElementById("fiter-name");
     var expired = document.getElementById("expired");
+    var expiredSoon = document.getElementById("soon-expired");
     var submitFilter = document.getElementById("submit-filter");
     var filterActive = false;
     var filtered = false;
     var filterExpired = false;
+    var filterSoonExpired = false;
     var itemsFromServer = [];
     var itemsToDisplay = [];
+    var itemsPerRow = 0;
+    //localstorage-stuff:
+    var filterSettings;
+    var savedFilter;
+    window.addEventListener("load", function () {
+        getItemsFromServer();
+        defineItemsPerRow();
+        setTimeout(function () {
+            loadFilterSettings();
+        }, 50);
+    });
     filterBtn.addEventListener("click", activateFilter);
-    submitFilter.addEventListener("click", filterItems);
+    submitFilter.addEventListener("click", function () {
+        checkFilterCount();
+    });
+    function checkFilterCount() {
+        var counter = 0;
+        if (categoryFilter.value != "default")
+            counter++;
+        if (nameFilter.value != "")
+            counter++;
+        if (filterExpired)
+            counter++;
+        if (filterSoonExpired)
+            counter++;
+        filterItems(counter);
+    }
+    categoryFilter.addEventListener("click", function () {
+        submitFilter.style.border = "1px solid #fc6a60";
+    });
+    nameFilter.addEventListener("click", function () {
+        submitFilter.style.border = "1px solid #fc6a60";
+    });
     expired.addEventListener("click", function () {
         if (filterExpired == false) {
-            filterExpired = true;
-            expired.style.border = "1px solid #84db8c";
-            expired.style.color = "#84db8c";
+            setExpired();
+            submitFilter.style.border = "1px solid #fc6a60";
         }
         else {
-            filterExpired = false;
-            expired.style.border = "1px solid #fff";
-            expired.style.color = "#fff";
+            resetExpired();
+            submitFilter.style.border = "1px solid #fc6a60";
         }
     });
+    function setExpired() {
+        filterExpired = true;
+        expired.style.border = "1px solid #84db8c";
+        expired.style.color = "#84db8c";
+    }
+    function resetExpired() {
+        filterExpired = false;
+        expired.style.border = "1px solid #fff";
+        expired.style.color = "#fff";
+    }
+    expiredSoon.addEventListener("click", function () {
+        if (filterSoonExpired == false) {
+            setSoonExpired();
+            submitFilter.style.border = "1px solid #fc6a60";
+        }
+        else {
+            resetExpiredSoon();
+            submitFilter.style.border = "1px solid #fc6a60";
+        }
+    });
+    function setSoonExpired() {
+        filterSoonExpired = true;
+        expiredSoon.style.border = "1px solid #84db8c";
+        expiredSoon.style.color = "#84db8c";
+    }
+    function resetExpiredSoon() {
+        filterSoonExpired = false;
+        expiredSoon.style.border = "1px solid #fff";
+        expiredSoon.style.color = "#fff";
+    }
     function getItemsFromServer() {
         return __awaiter(this, void 0, void 0, function () {
             var response, text;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        currentDate.innerHTML = new Date().toLocaleDateString();
-                        return [4 /*yield*/, fetch(_url + portAll, {
-                                method: "GET"
-                            })];
+                    case 0: return [4 /*yield*/, fetch(_url + portAll, {
+                            method: "GET"
+                        })];
                     case 1:
                         response = _a.sent();
                         return [4 /*yield*/, response.text()];
@@ -81,45 +142,60 @@ var Filter;
             });
         });
     }
-    function activateFilter(event) {
-        event.preventDefault();
+    function activateFilter() {
         if (filterActive == false) {
-            categoryFilter.style.display = "inline";
-            expired.style.display = "inline";
-            submitFilter.style.display = "inline";
+            for (var i = 0; i < fliterElements.length; i++) {
+                fliterElements[i].style.display = "inline";
+            }
             filterActive = true;
             filterBtn.innerHTML = "Filter aus";
-            getItemsFromServer();
         }
         else {
-            categoryFilter.style.display = "none";
-            expired.style.display = "none";
-            submitFilter.style.display = "none";
-            filterExpired = false;
-            expired.style.border = "1px solid #fff";
-            expired.style.color = "#fff";
+            for (var i = 0; i < fliterElements.length; i++) {
+                fliterElements[i].style.display = "none";
+            }
             filterActive = false;
             filterBtn.innerHTML = "Filter setzen...";
             itemsToDisplay = [];
+            categoryFilter.value = "default";
+            nameFilter.value = "";
+            resetExpired();
+            resetExpiredSoon();
+            submitFilter.style.border = "1px solid #fc6a60";
             if (filtered) {
                 table.innerHTML = "";
                 loadIntoTable(itemsFromServer);
             }
+            localStorage.clear();
         }
     }
-    function filterItems() {
+    function filterItems(counter) {
+        var checkCounter = 0;
         for (var i = 0; i < itemsFromServer.length; i++) {
-            if (itemsFromServer[i].category == returnCategory(categoryFilter.value)) {
-                itemsToDisplay.push(itemsFromServer[i]);
-            }
+            if (categoryFilter.value != "default" && itemsFromServer[i].category == returnCategory(categoryFilter.value))
+                checkCounter++;
+            if (nameFilter.value != "" && itemsFromServer[i].name == nameFilter.value)
+                checkCounter++;
             if (filterExpired) {
-                if (checkIfExpired(itemsFromServer[i].expiryDate))
-                    itemsToDisplay.push(itemsFromServer[i]);
+                if (checkIfExpired(new Date(itemsFromServer[i].expiryDate)))
+                    checkCounter++;
             }
+            if (filterSoonExpired) {
+                if (checkIfSoonExpired(new Date(itemsFromServer[i].expiryDate)))
+                    checkCounter++;
+            }
+            if (checkCounter == counter)
+                itemsToDisplay.push(itemsFromServer[i]);
+            checkCounter = 0;
         }
         table.innerHTML = "";
         filtered = true;
+        console.log(itemsFromServer);
         loadIntoTable(itemsToDisplay);
+        //save in localstorage:
+        storeFilterSettings(categoryFilter.value, nameFilter.value, filterExpired, filterSoonExpired);
+        submitFilter.style.border = "1px solid #84db8c";
+        itemsToDisplay = [];
     }
     function returnCategory(input) {
         switch (input) {
@@ -140,12 +216,19 @@ var Filter;
         }
     }
     function checkIfExpired(date) {
-        var currentDate = new Date().toLocaleDateString();
-        var currentDateYear = parseInt(currentDate.substring(5, 9));
-        var expiryYear = parseInt(date.substring(5, 9));
-        console.log(currentDateYear);
-        console.log(expiryYear);
-        if (currentDateYear > expiryYear)
+        var currentDate = new Date();
+        var difference = date.getTime() - currentDate.getTime();
+        difference /= (1000 * 60 * 60 * 24);
+        if (difference < 0)
+            return true;
+        else
+            return false;
+    }
+    function checkIfSoonExpired(date) {
+        var currentDate = new Date();
+        var difference = date.getTime() - currentDate.getTime();
+        difference /= (1000 * 60 * 60 * 24);
+        if (difference > 0 && difference < 3)
             return true;
         else
             return false;
@@ -153,14 +236,56 @@ var Filter;
     function loadIntoTable(items) {
         var newRow = document.createElement("tr");
         table.appendChild(newRow);
+        var itemCounter = 0;
         for (var i = 0; i < items.length; i++) {
             var eintrag = document.createElement("td");
             var button = document.createElement("a");
-            button.innerHTML = items[i].category + " " + items[i].name + "<br>" + items[i].expiryDate;
+            var expiryDate = new Date(items[i].expiryDate).toLocaleDateString();
+            button.innerHTML = items[i].category + " " + items[i].name + "<br>" + expiryDate;
             button.href = "detailedView.html?index=" + items[i].index;
             eintrag.appendChild(button);
             newRow.appendChild(eintrag);
+            itemCounter++;
+            if (itemCounter == itemsPerRow) {
+                newRow = document.createElement("tr");
+                table.appendChild(newRow);
+                itemCounter = 0;
+            }
         }
+    }
+    function defineItemsPerRow() {
+        if (window.innerWidth < 500)
+            itemsPerRow = 4;
+        else
+            itemsPerRow = 5;
+    }
+    //LocalStorage Functions:
+    function storeFilterSettings(categoryValue, nameValue, expiredValue, soonExpiredValue) {
+        filterSettings = {
+            category: categoryValue,
+            name: nameValue,
+            expired: expiredValue,
+            soonExpired: soonExpiredValue
+        };
+        savedFilter = JSON.stringify(filterSettings);
+        localStorage.setItem("filterSettings", savedFilter);
+    }
+    function loadFilterSettings() {
+        if (localStorage.length < 1)
+            return;
+        filterSettings = null;
+        filterSettings = JSON.parse(localStorage.getItem("filterSettings"));
+        filterActive = false;
+        categoryFilter.value = filterSettings.category;
+        nameFilter.value = filterSettings.name;
+        filterExpired = filterSettings.expired;
+        if (filterExpired)
+            setExpired();
+        filterSoonExpired = filterSettings.soonExpired;
+        if (filterSoonExpired)
+            setSoonExpired();
+        activateFilter();
+        checkFilterCount();
     }
 })(Filter || (Filter = {}));
 //# sourceMappingURL=Filter.js.map

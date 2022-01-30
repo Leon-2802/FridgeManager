@@ -33,3 +33,17 @@ label {
 ::-webkit-calendar-picker-indicator {
     filter: invert(1);
 }
+
+@media (max-width: 800px) {
+    form {
+        width: 90%;
+        margin-left: 5%;
+    }
+    #submit {
+        width: 30%;
+        font-size: 12px;
+    }
+    #back {
+        font-size: 12px;
+    }
+}

@@ -19,8 +19,8 @@ namespace Details {
         index: number;
         category: string;
         name: string;
-        expiryDate: string;
-        submitDate: string;
+        expiryDate: Date;
+        submitDate: Date;
         notes: string;
     }
     let selectedItem: Item[] = [];
@@ -33,7 +33,7 @@ namespace Details {
     async function getSelectedItem(event: Event): Promise<void> {
         event.preventDefault();
 
-        currentDate.innerHTML = new Date().toLocaleDateString();
+        currentDate.innerHTML = "Heutiges Datum: " + new Date().toLocaleDateString();
 
         let text: string = "";
         text = await requestTextWithGet(_url + portSingle + index);
@@ -69,8 +69,8 @@ namespace Details {
 
     function loadIntoDOM(item: Item[]): void {
         nameAndCategory.innerHTML = item[0].category + " " + item[0].name;
-        expiry.innerHTML += item[0].expiryDate;
-        postDate.innerHTML += item[0].submitDate;
+        expiry.innerHTML += new Date(item[0].expiryDate).toLocaleDateString();
+        postDate.innerHTML += new Date(item[0].submitDate).toLocaleDateString();
         notes.innerHTML = item[0].notes;
     }
 

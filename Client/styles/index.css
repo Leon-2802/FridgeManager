@@ -3,11 +3,13 @@ header {
     justify-content: center;
     align-items: center;
     margin-bottom: 6%;
+    text-decoration: underline;
 }
 
 table {
     margin-top: 3%;
     margin-left: 10%;
+    margin-right: 10%;
     margin-bottom: 10%;
     width: 80%;
     border-collapse: collapse;
@@ -37,15 +39,53 @@ th {
     display: flex;
     justify-content: space-between;
 }
+#filter-div {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    column-gap: 8px;
+}
 #filter-btn {
     margin-left: 10%;
+}
+#break {
+    display: none;
+    flex-basis: 100%;
+    height: 20px;
 }
 #expired {
     width: 150px;
 }
 #submit-filter {
     width: 100px;
+    border: "1px solid #fc6a60"
 }
 #add-btn {
     margin-right: 10%;
+}
+
+
+@media (max-width: 700px) {
+    #add-btn {
+        font-size: 10px;
+    }
+    #filter-div {
+        display: contents;
+    }
+    .filter {
+        margin-top: 20px;
+    }
+}
+@media (max-width: 600px) {
+    table {
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+    }
+    #filter-btn {
+        margin-left: 0;
+    }
+    #add-btn {
+        margin-right: 0;
+    }
 }

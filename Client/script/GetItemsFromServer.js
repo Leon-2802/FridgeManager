@@ -40,9 +40,11 @@ var _url = "http://127.0.0.1:3000/";
 var portSingle = "item";
 var portAll = "items";
 var itemsFromServer = [];
+var itemsPerRow = 0;
 var selectedItem;
 console.log(selectedItem);
 window.addEventListener("load", getItemsFromServer);
+defineItemsPerRow();
 function getItemsFromServer(event) {
     return __awaiter(this, void 0, void 0, function () {
         var response, text;
@@ -50,7 +52,7 @@ function getItemsFromServer(event) {
             switch (_a.label) {
                 case 0:
                     event.preventDefault();
-                    currentDate.innerHTML = new Date().toLocaleDateString();
+                    currentDate.innerHTML = "Heutiges Datum: " + new Date().toLocaleDateString();
                     return [4 /*yield*/, fetch(_url + portAll, {
                             method: "GET"
                         })];
@@ -70,13 +72,27 @@ function getItemsFromServer(event) {
 function loadIntoTable() {
     var newRow = document.createElement("tr");
     table.appendChild(newRow);
+    var itemCounter = 0;
     for (var i = 0; i < itemsFromServer.length; i++) {
         var eintrag = document.createElement("td");
         var button = document.createElement("a");
-        button.innerHTML = itemsFromServer[i].category + " " + itemsFromServer[i].name + "<br>" + itemsFromServer[i].expiryDate;
+        var expiryDate = new Date(itemsFromServer[i].expiryDate).toLocaleDateString();
+        button.innerHTML = itemsFromServer[i].category + " " + itemsFromServer[i].name + "<br>" + expiryDate;
         button.href = "detailedView.html?index=" + itemsFromServer[i].index;
         eintrag.appendChild(button);
         newRow.appendChild(eintrag);
+        itemCounter++;
+        if (itemCounter == itemsPerRow) {
+            newRow = document.createElement("tr");
+            table.appendChild(newRow);
+            itemCounter = 0;
+        }
     }
+}
+function defineItemsPerRow() {
+    if (window.innerWidth < 500)
+        itemsPerRow = 4;
+    else
+        itemsPerRow = 5;
 }
 //# sourceMappingURL=GetItemsFromServer.js.map

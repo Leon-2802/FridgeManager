@@ -17,10 +17,13 @@
 
     <main>
         <p id="dateSlot"></p>
-        <div id=btn-wrapper>
+        <div id="btn-wrapper">
             <button id="filter-btn">Filter setzen...</button>
+            <button id="add-btn"><a href="addItem.html">Neue Ware hinzufügen</a></button>
+        </div>
+        <div id="filter-div">
             <select class="filter" id="filter-input">
-                <option disabled selected value>Filter nach Kategorie</option>
+                <option selected value="default">Alle Kategorien</option>
                 <option value="fleisch">&#129385; Fleisch</option>
                 <option value="milchprodukte">&#129371; Milchprodukte</option>
                 <option value="gemuese">&#129382; Gemüse</option>
@@ -28,9 +31,11 @@
                 <option value="snack">&#127851; Snacks</option>
                 <option value="other">&#63; Sonstiges</option>
             </select>
+            <input class="filter" id="fiter-name" type="text" placeholder="filter by name...">
+            <div id="break"></div>
             <button class="filter" id="expired">Schon abgelaufen</button>
+            <button class="filter" id="soon-expired">Bald abgelaufen</button>
             <button class="filter" id="submit-filter">Bestätigen</button>
-            <button id="add-btn"><a href="addItem.html">Neue Ware hinzufügen</a></button>
         </div>
 
         <table id="fridge-table">

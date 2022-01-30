@@ -58,7 +58,7 @@ var Details;
                 switch (_a.label) {
                     case 0:
                         event.preventDefault();
-                        currentDate.innerHTML = new Date().toLocaleDateString();
+                        currentDate.innerHTML = "Heutiges Datum: " + new Date().toLocaleDateString();
                         text = "";
                         return [4 /*yield*/, requestTextWithGet(_url + portSingle + index)];
                     case 1:
@@ -111,8 +111,8 @@ var Details;
     }
     function loadIntoDOM(item) {
         nameAndCategory.innerHTML = item[0].category + " " + item[0].name;
-        expiry.innerHTML += item[0].expiryDate;
-        postDate.innerHTML += item[0].submitDate;
+        expiry.innerHTML += new Date(item[0].expiryDate).toLocaleDateString();
+        postDate.innerHTML += new Date(item[0].submitDate).toLocaleDateString();
         notes.innerHTML = item[0].notes;
     }
 })(Details || (Details = {}));

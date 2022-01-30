@@ -1,3 +1,7 @@
+#product-title {
+    margin-top: 40px;
+    text-decoration: underline;
+}
 #content-wrapper {
     display: flex;
     justify-content: center;
@@ -10,4 +14,14 @@
     height: auto;
     border: 1px solid #fff;
 
+}
+
+@media (max-width: 600px) {
+    #content-wrapper {
+        display: inline;
+    }
+    #buttons {
+        margin-top: 30px;
+        margin-left: 10%;
+    }
 }

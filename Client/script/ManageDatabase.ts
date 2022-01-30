@@ -15,8 +15,8 @@ namespace ManageDatabase {
         index: number;
         category: string;
         name: string;
-        expiryDate: string;
-        submitDate: string;
+        expiryDate: Date;
+        submitDate: Date;
         notes: string;
     }
 
@@ -50,8 +50,8 @@ namespace ManageDatabase {
             index: await setIndex(),
             category: returnCategory(selectCategory.value),
             name: selectName.value,
-            expiryDate: setDateFormat(selectDate.value),
-            submitDate: new Date().toLocaleDateString(),
+            expiryDate: new Date(selectDate.value),
+            submitDate: new Date(),
             notes: addNotes.value
         };
         itemsFromServer.push(item);
@@ -120,7 +120,7 @@ namespace ManageDatabase {
             index: itemsFromServer[0].index,
             category: returnCategory(selectCategory.value),
             name: selectName.value,
-            expiryDate: setDateFormat(selectDate.value),
+            expiryDate: new Date(selectDate.value),
             submitDate: itemsFromServer[0].submitDate,
             notes: addNotes.value
         };
@@ -144,13 +144,13 @@ namespace ManageDatabase {
 
     //Nicht-async functions:
     function setCurrentDate(): void {
-        currentDate.innerHTML = new Date().toLocaleDateString();
+        currentDate.innerHTML = "Heutiges Datum: " + new Date().toLocaleDateString();
     }
 
     function loadIntoDOM(): void {
         selectCategory.value = returnCategoryForEdit(itemsFromServer[0].category);
         selectName.value = itemsFromServer[0].name;
-        selectDate.value = itemsFromServer[0].expiryDate;
+        selectDate.value = setDateFormat(new Date(itemsFromServer[0].expiryDate));
         addNotes.value = itemsFromServer[0].notes;
     }
 
@@ -190,19 +190,10 @@ namespace ManageDatabase {
                 return "other";
         }
     }
-    function setDateFormat(date: string): string {
-        let year: string = date.substring(0, 4);
-        let month: string = date.substring(5, 7);
-        let day: string = date.substring(8, 10);
-
-        if (month.substring(0, 1) == "0") {
-            month = month.substring(1, 2);
-        }
-        if (day.substring(0, 1) == "0") {
-            day = day.substring(1, 2);
-        }
-
-        return day + "." + month + "." + year;
+    function setDateFormat(date: Date): string {
+        const offset: number = date.getTimezoneOffset();
+        date = new Date(date.getTime() - (offset * 60 * 1000));
+        return date.toISOString().split("T")[0];
     }
 
     function clearInput(): void {
