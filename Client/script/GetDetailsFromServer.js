@@ -36,21 +36,29 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var Details;
 (function (Details) {
+    //#region Variablen
+    //HTML-Elemente für Item-Details
     var nameAndCategory = document.getElementById("category+name");
     var expiry = document.getElementById("expiry");
     var postDate = document.getElementById("postDate");
     var notes = document.getElementById("notes");
     var deleteBtn = document.getElementById("delete");
     var editBtn = document.getElementById("edit");
+    //aktuelles Datum
     var currentDate = document.getElementById("currentDate");
     var _url = "http://127.0.0.1:3000/";
     var portSingle = "item";
     var params = new URLSearchParams(window.location.search);
+    //index des Items für Detailansicht in URL mitgegeben
     var index = "?index=" + params.get("index");
-    console.log(index);
+    //Item muss in Array-Form heruntergeladen werden
     var selectedItem = [];
+    //#endregion
+    //#region Eventlistener für window-load und Löschbutton
     window.addEventListener("load", getSelectedItem);
     deleteBtn.addEventListener("click", deleteItem);
+    //#endregion
+    //#region Kommunikation mit Server
     function getSelectedItem(event) {
         return __awaiter(this, void 0, void 0, function () {
             var text;
@@ -67,7 +75,7 @@ var Details;
                         selectedItem = JSON.parse(text);
                         console.log(selectedItem);
                         loadIntoDOM(selectedItem);
-                        //link für edit-Button:
+                        //link für edit-Button (Zu Seite für Anlegen/Bearbeiten, Index im Link zeigt dann welches Item zu bearbeiten ist):
                         editBtn.href = "addItem.html" + index;
                         return [2 /*return*/];
                 }
@@ -94,12 +102,16 @@ var Details;
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetch(_url + portSingle + index, {
+                    case 0: 
+                    //Löschen mit DELETE-Method:
+                    return [4 /*yield*/, fetch(_url + portSingle + index, {
                             method: "DELETE"
                         })];
                     case 1:
+                        //Löschen mit DELETE-Method:
                         _a.sent();
                         console.log("deleted");
+                        //Feedback im HTML:
                         nameAndCategory.innerHTML = "Gelöscht";
                         expiry.innerHTML = "Gelöscht";
                         postDate.innerHTML = "Gelöscht";
@@ -109,11 +121,14 @@ var Details;
             });
         });
     }
+    //#endregion
+    //#region im HTML anzeigen
     function loadIntoDOM(item) {
         nameAndCategory.innerHTML = item[0].category + " " + item[0].name;
         expiry.innerHTML += new Date(item[0].expiryDate).toLocaleDateString();
         postDate.innerHTML += new Date(item[0].submitDate).toLocaleDateString();
         notes.innerHTML = item[0].notes;
     }
+    //#endregion
 })(Details || (Details = {}));
 //# sourceMappingURL=GetDetailsFromServer.js.map

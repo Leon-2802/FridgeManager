@@ -36,21 +36,31 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var ManageDatabase;
 (function (ManageDatabase) {
+    //#region Variablen und Interfaces
+    //HTML-Elemtent zum Hinzufügen:
     var selectCategory = document.getElementById("category");
     var selectName = document.getElementById("name");
     var selectDate = document.getElementById("ablaufdatum");
     var addNotes = document.getElementById("notes");
     var submit = document.getElementById("submit");
+    //Datum-Anzeige:
     var currentDate = document.getElementById("currentDate");
+    //URL vom Server:
     var _url = "http://127.0.0.1:3000/";
     var portSingle = "item";
     var portAll = "items";
     var itemsFromServer = [];
+    //#endregion
+    //#region Checken ob von Homepage oder von Detailseite aufgerufen:
     if (window.location.href.indexOf("?index") > -1) {
         var params = new URLSearchParams(window.location.search);
+        //Index aus URL rauslesen
         var index = "?index=" + params.get("index");
+        //Button anpassen für Updaten
         submit.innerHTML = "Aktualisieren";
+        //Aktuelles Datum holen und Anzeigen:
         setCurrentDate();
+        //Gewünschtes Item zu Aktualisieren holen und gleich itemsFromServer setzen:
         getSelectedItem(index);
         submit.addEventListener("click", submitUpdate);
     }
@@ -58,7 +68,8 @@ var ManageDatabase;
         setCurrentDate();
         submit.addEventListener("click", onSubmit);
     }
-    //Fürs Hochladen:
+    //#endregion
+    //#region Fürs Hochladen:
     function onSubmit(event) {
         return __awaiter(this, void 0, void 0, function () {
             var item;
@@ -66,6 +77,7 @@ var ManageDatabase;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
+                        //Wenn keine Werte in required-Felder vorhanden, Funktion abbrechen
                         if (selectCategory.value == "" || selectName.value == "" || selectDate.value == "")
                             return [2 /*return*/];
                         event.preventDefault();
@@ -80,9 +92,10 @@ var ManageDatabase;
                             _a.notes = addNotes.value,
                             _a);
                         itemsFromServer.push(item);
-                        console.log(itemsFromServer);
+                        //Item absenden und in Datenbank speichern:
                         sendJSONStringWithPost(_url + portSingle, JSON.stringify(item));
                         setTimeout(function () {
+                            //Input-Felder leeren:
                             clearInput();
                         }, 100);
                         return [2 /*return*/];
@@ -116,25 +129,23 @@ var ManageDatabase;
     }
     function setIndex() {
         return __awaiter(this, void 0, void 0, function () {
-            var response, text, result, i;
+            var text, result, i;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, fetch(_url + portAll, {
-                            method: "GET"
-                        })];
+                    case 0:
+                        text = "";
+                        return [4 /*yield*/, requestTextWithGet(_url + portAll)];
                     case 1:
-                        response = _a.sent();
-                        return [4 /*yield*/, response.text()];
-                    case 2:
                         text = _a.sent();
                         itemsFromServer = JSON.parse(text);
-                        console.log(itemsFromServer);
                         result = 0;
+                        //Checken welcher der höchste aktuelle Index unter den items ist:
                         for (i = 0; i < itemsFromServer.length; i++) {
                             if (itemsFromServer[i].index > result) {
                                 result = itemsFromServer[i].index;
                             }
                         }
+                        //Der Index des neuen Items liegt nun 1 höher und ist daher sicher nicht der gleiche wie der eines anderen Items:
                         result++;
                         console.log(result);
                         return [2 /*return*/, result];
@@ -142,7 +153,8 @@ var ManageDatabase;
             });
         });
     }
-    //Bei Bearbeiten:
+    //#endregion
+    //#region Bei Bearbeiten:
     function getSelectedItem(index) {
         return __awaiter(this, void 0, void 0, function () {
             var text;
@@ -152,16 +164,16 @@ var ManageDatabase;
                         text = "";
                         return [4 /*yield*/, requestTextWithGet(_url + portSingle + index)];
                     case 1:
+                        //Hier nur ein einzelnes Item anfragen (mit index raussuchen lassen):
                         text = _a.sent();
-                        console.log(text);
                         itemsFromServer = JSON.parse(text);
-                        console.log(itemsFromServer);
                         loadIntoDOM();
                         return [2 /*return*/];
                 }
             });
         });
     }
+    //Funktion die die Request sendet, nutzbar für Anfragen auf einzelne, wie auf mehrere Items:
     function requestTextWithGet(url) {
         return __awaiter(this, void 0, void 0, function () {
             var response, text;
@@ -194,15 +206,17 @@ var ManageDatabase;
                             notes: addNotes.value
                         };
                         itemsFromServer[0] = item;
-                        console.log(itemsFromServer[0]);
                         index = "?index=" + itemsFromServer[0].index;
+                        //Mit Methode PATCH absenden:
                         return [4 /*yield*/, fetch(_url + portSingle + index, {
                                 method: "PATCH",
                                 body: JSON.stringify(itemsFromServer[0])
                             })];
                     case 1:
+                        //Mit Methode PATCH absenden:
                         _a.sent();
                         console.log("updated");
+                        //nach 0.2 s wieder zurück zur Homepage:
                         setTimeout(function () {
                             window.location.href = "index.html";
                         }, 200);
@@ -211,17 +225,20 @@ var ManageDatabase;
             });
         });
     }
-    //Nicht-async functions:
+    //#endregion
+    //#region Nicht-async functions:
     function setCurrentDate() {
         currentDate.innerHTML = "Heutiges Datum: " + new Date().toLocaleDateString();
     }
     function loadIntoDOM() {
+        //Bei Aufruf von Detailseite zum Bearbeiten, Item-Werte des gewählten Items in Input-Felder laden
         selectCategory.value = returnCategoryForEdit(itemsFromServer[0].category);
         selectName.value = itemsFromServer[0].name;
         selectDate.value = setDateFormat(new Date(itemsFromServer[0].expiryDate));
         addNotes.value = itemsFromServer[0].notes;
     }
     function returnCategory(input) {
+        //Für Speichern in Datenbank muss value des Select-Elements zu String der jeweiligen Kategorie geändert werden:
         switch (input) {
             case "fleisch":
                 return "&#129385;";
@@ -240,6 +257,7 @@ var ManageDatabase;
         }
     }
     function returnCategoryForEdit(data) {
+        //Beim reinladen der Werte von der Datenbank zum Bearbeiten ist es genau anders herum:
         switch (data) {
             case "&#129385;":
                 return "fleisch";
@@ -258,6 +276,7 @@ var ManageDatabase;
         }
     }
     function setDateFormat(date) {
+        //datum der Date-Klasse zu yyyy-mm-dd umformatieren:
         var offset = date.getTimezoneOffset();
         date = new Date(date.getTime() - (offset * 60 * 1000));
         return date.toISOString().split("T")[0];
@@ -268,5 +287,6 @@ var ManageDatabase;
         selectDate.value = "";
         addNotes.value = "";
     }
+    //#endregion
 })(ManageDatabase || (ManageDatabase = {}));
 //# sourceMappingURL=ManageDatabase.js.map

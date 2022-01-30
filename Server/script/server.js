@@ -38,11 +38,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var http = require("http");
 var mongo = require("mongodb");
+//#region Variablen für Server Connection und Item-Interface
 var hostname = "127.0.0.1"; // localhost
 var port = 3000;
 var mongoUrl = "mongodb://localhost:27017"; // für lokale MongoDB
 var mongoClient = new mongo.MongoClient(mongoUrl);
 var item;
+//#endregion
+//#region Funktion um Item in Datenbank zu finden
 // tslint:disable-next-line:typedef
 function dbFind(
 // tslint:disable-next-line:no-any
@@ -55,17 +58,21 @@ db, collection, requestObject, response) {
                         .db(db)
                         .collection(collection)
                         .find(requestObject)
+                        //Item(s) werden immer als Array ausgegeben:
                         .toArray()];
                 case 1:
                     result = _a.sent();
                     // console.log(result, requestObject); // bei Fehlern zum Testen
                     response.setHeader("Content-Type", "application/json");
+                    //Item(s) aus der Datenbank im JSON-Format zurückgegeben:
                     response.write(JSON.stringify(result));
                     return [2 /*return*/];
             }
         });
     });
 }
+//#endregion
+//#region Funktion die bei Server-Request von Client aufgerufen wird
 var server = http.createServer(function (request, response) { return __awaiter(void 0, void 0, void 0, function () {
     var url, _a, _b, jsonString_1, jsonStringUpdate_1, _c;
     return __generator(this, function (_d) {
@@ -73,9 +80,7 @@ var server = http.createServer(function (request, response) { return __awaiter(v
             case 0:
                 response.statusCode = 200;
                 response.setHeader("Access-Control-Allow-Origin", "*"); // bei CORS Fehler
-                response.setHeader("Access-Control-Allow-Credentials", "true");
-                response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE, UPDATE");
-                response.setHeader("Access-Control-Allow-Headers", "X_Token, Content-Type");
+                response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE, UPDATE"); //Alle erlaubten Methoden
                 url = new URL(request.url || "", "http://" + request.headers.host);
                 _a = url.pathname;
                 switch (_a) {
@@ -94,10 +99,13 @@ var server = http.createServer(function (request, response) { return __awaiter(v
                     case "PATCH": return [3 /*break*/, 7];
                 }
                 return [3 /*break*/, 8];
-            case 3: return [4 /*yield*/, dbFind("fridge", "items", {
+            case 3: 
+            //dbFind-Funktion aus Zeile 23 aufrufen und Datenbank- und Collectionname und index mitegeben
+            return [4 /*yield*/, dbFind("fridge", "items", {
                     index: Number(url.searchParams.get("index")) // von String zu Zahl konvertieren
                 }, response)];
             case 4:
+                //dbFind-Funktion aus Zeile 23 aufrufen und Datenbank- und Collectionname und index mitegeben
                 _d.sent();
                 return [3 /*break*/, 8];
             case 5:
@@ -139,6 +147,7 @@ var server = http.createServer(function (request, response) { return __awaiter(v
                         mongoClient
                             .db("fridge")
                             .collection("items")
+                            //Mit Values des mitgegeben Items aktualisieren:
                             .updateOne({ index: Number(url.searchParams.get("index")) }, { $set: { "category": item.category, "name": item.name, "expiryDate": item.expiryDate, "notes": item.notes } });
                         return [2 /*return*/];
                     });
@@ -179,11 +188,11 @@ var server = http.createServer(function (request, response) { return __awaiter(v
         }
     });
 }); });
+//#endregion
+//#region Meldung für Terminal, dass Server läuft
 server.listen(port, hostname, function () {
     console.log("Server running at http://" + hostname + ":" + port + "/");
 });
+//#endregion
 //Starten mit: node ./Server/script/server.js
-/* MongoDB Datenbanksystem starten (bei zipInstall):
-cd C:\Programme\MongoDB
-zipInstall\bin\mongod.exe --dbpath c:\Programme\MongoDB\data\db*/ 
 //# sourceMappingURL=server.js.map

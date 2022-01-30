@@ -34,65 +34,79 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var table = document.getElementById("fridge-table");
-var currentDate = document.getElementById("dateSlot");
-var _url = "http://127.0.0.1:3000/";
-var portSingle = "item";
-var portAll = "items";
-var itemsFromServer = [];
-var itemsPerRow = 0;
-var selectedItem;
-console.log(selectedItem);
-window.addEventListener("load", getItemsFromServer);
-defineItemsPerRow();
-function getItemsFromServer(event) {
-    return __awaiter(this, void 0, void 0, function () {
-        var response, text;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    event.preventDefault();
-                    currentDate.innerHTML = "Heutiges Datum: " + new Date().toLocaleDateString();
-                    return [4 /*yield*/, fetch(_url + portAll, {
-                            method: "GET"
-                        })];
-                case 1:
-                    response = _a.sent();
-                    return [4 /*yield*/, response.text()];
-                case 2:
-                    text = _a.sent();
-                    itemsFromServer = JSON.parse(text);
-                    console.log(itemsFromServer);
-                    loadIntoTable();
-                    return [2 /*return*/];
-            }
+var GetItemsFromServer;
+(function (GetItemsFromServer) {
+    //#region Variablen und Interfaces
+    //HTML-Elemente
+    var table = document.getElementById("fridge-table");
+    var currentDate = document.getElementById("dateSlot");
+    //Server-URL
+    var _url = "http://127.0.0.1:3000/";
+    var portAll = "items";
+    //Array für Items von Server
+    var itemsFromServer = [];
+    var itemsPerRow = 0;
+    //#endregion
+    window.addEventListener("load", getItemsFromServer);
+    //Berechnung für Responsive Menge an Elementen der Tabellenreihen:
+    defineItemsPerRow();
+    //#region Server-Kommunikation
+    function getItemsFromServer(event) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, text;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        event.preventDefault();
+                        //Aktuelles Datum holen und anzeigen
+                        currentDate.innerHTML = "Heutiges Datum: " + new Date().toLocaleDateString();
+                        return [4 /*yield*/, fetch(_url + portAll, {
+                                method: "GET"
+                            })];
+                    case 1:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.text()];
+                    case 2:
+                        text = _a.sent();
+                        itemsFromServer = JSON.parse(text);
+                        loadIntoTable();
+                        return [2 /*return*/];
+                }
+            });
         });
-    });
-}
-function loadIntoTable() {
-    var newRow = document.createElement("tr");
-    table.appendChild(newRow);
-    var itemCounter = 0;
-    for (var i = 0; i < itemsFromServer.length; i++) {
-        var eintrag = document.createElement("td");
-        var button = document.createElement("a");
-        var expiryDate = new Date(itemsFromServer[i].expiryDate).toLocaleDateString();
-        button.innerHTML = itemsFromServer[i].category + " " + itemsFromServer[i].name + "<br>" + expiryDate;
-        button.href = "detailedView.html?index=" + itemsFromServer[i].index;
-        eintrag.appendChild(button);
-        newRow.appendChild(eintrag);
-        itemCounter++;
-        if (itemCounter == itemsPerRow) {
-            newRow = document.createElement("tr");
-            table.appendChild(newRow);
-            itemCounter = 0;
+    }
+    //#endregion
+    //#region Laden in Tabelle
+    function loadIntoTable() {
+        var newRow = document.createElement("tr");
+        table.appendChild(newRow);
+        var itemCounter = 0;
+        for (var i = 0; i < itemsFromServer.length; i++) {
+            var eintrag = document.createElement("td");
+            var button = document.createElement("a");
+            //Date muss neu Instanziert werden mit Wert aus Datenbank:
+            var expiryDate = new Date(itemsFromServer[i].expiryDate).toLocaleDateString();
+            //Inhalt des Item-Feldes
+            button.innerHTML = itemsFromServer[i].category + " " + itemsFromServer[i].name + "<br>" + expiryDate;
+            //Link zur Detailseite:
+            button.href = "detailedView.html?index=" + itemsFromServer[i].index;
+            eintrag.appendChild(button);
+            newRow.appendChild(eintrag);
+            itemCounter++;
+            //Wenn so viel Items in der Reihe wie erlaubt -> neue Reihe hinzufügen für die folgenden Items
+            if (itemCounter == itemsPerRow) {
+                newRow = document.createElement("tr");
+                table.appendChild(newRow);
+                itemCounter = 0;
+            }
         }
     }
-}
-function defineItemsPerRow() {
-    if (window.innerWidth < 500)
-        itemsPerRow = 4;
-    else
-        itemsPerRow = 5;
-}
+    function defineItemsPerRow() {
+        if (window.innerWidth < 500)
+            itemsPerRow = 4;
+        else
+            itemsPerRow = 5;
+    }
+    //#endregion
+})(GetItemsFromServer || (GetItemsFromServer = {}));
 //# sourceMappingURL=GetItemsFromServer.js.map

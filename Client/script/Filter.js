@@ -36,6 +36,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var Filter;
 (function (Filter) {
+    //#region Variablen und Interfaces
+    //HTML-Elemente für Filter
     var table = document.getElementById("fridge-table");
     var filterBtn = document.getElementById("filter-btn");
     var fliterElements = document.getElementsByClassName("filter");
@@ -44,27 +46,39 @@ var Filter;
     var expired = document.getElementById("expired");
     var expiredSoon = document.getElementById("soon-expired");
     var submitFilter = document.getElementById("submit-filter");
+    //Server-Variablen
+    var _url = "http://127.0.0.1:3000/";
+    var portAll = "items";
+    //Booleans für Setzen des Filters:
     var filterActive = false;
     var filtered = false;
     var filterExpired = false;
     var filterSoonExpired = false;
+    //Arrays zu Speichern der Items vom Server
     var itemsFromServer = [];
     var itemsToDisplay = [];
     var itemsPerRow = 0;
     //localstorage-stuff:
     var filterSettings;
     var savedFilter;
+    //#endregion
+    //#region Eventlistener bei Laden der Seite und für das An-/Ausschalten des Filters
     window.addEventListener("load", function () {
         getItemsFromServer();
         defineItemsPerRow();
         setTimeout(function () {
+            //Filtereinstellungen werden aus Localstorage, falls vorhanden, geladen: 
+            //Timeout, um zu verhindern, dass über die GetItemsFormServer-Datei wieder alle Items reingeladen werden:
             loadFilterSettings();
         }, 50);
     });
     filterBtn.addEventListener("click", activateFilter);
+    //#endregion
+    //#region Filter bestätigen
     submitFilter.addEventListener("click", function () {
         checkFilterCount();
     });
+    //Prüft wie viele der Filter-Optionen aktiv sind:
     function checkFilterCount() {
         var counter = 0;
         if (categoryFilter.value != "default")
@@ -75,9 +89,13 @@ var Filter;
             counter++;
         if (filterSoonExpired)
             counter++;
+        //Filter-Funktion aufrufen um nur die Items auszuwählen die gefordert sind:
         filterItems(counter);
     }
+    //#endregion
+    //#region EventListener für Filter-Einstellungen
     categoryFilter.addEventListener("click", function () {
+        //Für besseres Design-Feedback Submit-Button wieder rot machen wenn Filter-Elemente angeklickt werden
         submitFilter.style.border = "1px solid #fc6a60";
     });
     nameFilter.addEventListener("click", function () {
@@ -93,6 +111,7 @@ var Filter;
             submitFilter.style.border = "1px solid #fc6a60";
         }
     });
+    //Boolean entsprechend Setzen und Design auf Status der Filter-Option anpassen:
     function setExpired() {
         filterExpired = true;
         expired.style.border = "1px solid #84db8c";
@@ -113,6 +132,7 @@ var Filter;
             submitFilter.style.border = "1px solid #fc6a60";
         }
     });
+    //Boolean entsprechend Setzen und Design auf Status der Filter-Option anpassen:
     function setSoonExpired() {
         filterSoonExpired = true;
         expiredSoon.style.border = "1px solid #84db8c";
@@ -123,6 +143,8 @@ var Filter;
         expiredSoon.style.border = "1px solid #fff";
         expiredSoon.style.color = "#fff";
     }
+    //#endregion
+    //#region Kommunikation mit Server + Localstorage
     function getItemsFromServer() {
         return __awaiter(this, void 0, void 0, function () {
             var response, text;
@@ -136,13 +158,49 @@ var Filter;
                         return [4 /*yield*/, response.text()];
                     case 2:
                         text = _a.sent();
+                        //Array mit Items vom Server mit Daten vom Server füllen:
                         itemsFromServer = JSON.parse(text);
                         return [2 /*return*/];
                 }
             });
         });
     }
+    //LocalStorage Functions:
+    function storeFilterSettings(categoryValue, nameValue, expiredValue, soonExpiredValue) {
+        //Speichert den Inhalt der Kategorie- und Name-Filteroption und ob expired und soonExpired ausgewählt wurden im LocalStorage:
+        filterSettings = {
+            category: categoryValue,
+            name: nameValue,
+            expired: expiredValue,
+            soonExpired: soonExpiredValue
+        };
+        savedFilter = JSON.stringify(filterSettings);
+        localStorage.setItem("filterSettings", savedFilter);
+    }
+    function loadFilterSettings() {
+        //Holt die gespeicherten Filtereinstellungen aus dem Localstorage...
+        if (localStorage.length < 1)
+            return;
+        filterSettings = null;
+        filterSettings = JSON.parse(localStorage.getItem("filterSettings"));
+        filterActive = false;
+        //...und setzt die Werte der Filter-HTML-Elemente entsprechend:
+        categoryFilter.value = filterSettings.category;
+        nameFilter.value = filterSettings.name;
+        filterExpired = filterSettings.expired;
+        if (filterExpired)
+            setExpired();
+        filterSoonExpired = filterSettings.soonExpired;
+        if (filterSoonExpired)
+            setSoonExpired();
+        //Filter wird automatisch aktivert und bestätigt -> Items werden gefiltert:
+        activateFilter();
+        checkFilterCount();
+    }
+    //#endregion
+    //#region Filter-Interaktion:
     function activateFilter() {
+        //Filter-Div mit allen HTML-Elementen anzeigen:
         if (filterActive == false) {
             for (var i = 0; i < fliterElements.length; i++) {
                 fliterElements[i].style.display = "inline";
@@ -151,9 +209,11 @@ var Filter;
             filterBtn.innerHTML = "Filter aus";
         }
         else {
+            //Filter-Div wieder verstecken:
             for (var i = 0; i < fliterElements.length; i++) {
                 fliterElements[i].style.display = "none";
             }
+            //Alle Booleans auf initialen Wert setzen, Design zurücksetzen, Array für Items zum Anzeigen und Localstorage leeren:
             filterActive = false;
             filterBtn.innerHTML = "Filter setzen...";
             itemsToDisplay = [];
@@ -162,6 +222,7 @@ var Filter;
             resetExpired();
             resetExpiredSoon();
             submitFilter.style.border = "1px solid #fc6a60";
+            //Wenn Items gefiltert wurden, Tabelle leeren und wieder alle Items die in der Collection liegen reinladen.
             if (filtered) {
                 table.innerHTML = "";
                 loadIntoTable(itemsFromServer);
@@ -170,8 +231,11 @@ var Filter;
         }
     }
     function filterItems(counter) {
+        //Counter um zu cecken ob alle Bedingungen erfüllt wurden:
         var checkCounter = 0;
         for (var i = 0; i < itemsFromServer.length; i++) {
+            //Jedes if-Statement prüft ob die jeweilige Filteroption ausgewählt ist, und wenn ja wird der Wert des 
+            //Items an der Stelle i im Array mit allen Items aus der Collection verglichen:
             if (categoryFilter.value != "default" && itemsFromServer[i].category == returnCategory(categoryFilter.value))
                 checkCounter++;
             if (nameFilter.value != "" && itemsFromServer[i].name == nameFilter.value)
@@ -184,20 +248,24 @@ var Filter;
                 if (checkIfSoonExpired(new Date(itemsFromServer[i].expiryDate)))
                     checkCounter++;
             }
+            //Wenn alle Bedingungen erfüllt wurden wird das Item in das Array gepusht wo alle Items liegen die nach dem Filtern angezeigt werden:
             if (checkCounter == counter)
                 itemsToDisplay.push(itemsFromServer[i]);
             checkCounter = 0;
         }
         table.innerHTML = "";
         filtered = true;
-        console.log(itemsFromServer);
         loadIntoTable(itemsToDisplay);
         //save in localstorage:
         storeFilterSettings(categoryFilter.value, nameFilter.value, filterExpired, filterSoonExpired);
+        //Submit-button grün färben für Feedback und Array leeren für die nächste Filtet-Anfrage
         submitFilter.style.border = "1px solid #84db8c";
         itemsToDisplay = [];
     }
+    //#endregion
+    //#region Funktionen zum Checken welche Items gefiltert werden und hochladen in Tabelle
     function returnCategory(input) {
+        //kategorie-String zurückgeben, abhängig von Value des Feldes im Filter
         switch (input) {
             case "fleisch":
                 return "&#129385;";
@@ -219,6 +287,7 @@ var Filter;
         var currentDate = new Date();
         var difference = date.getTime() - currentDate.getTime();
         difference /= (1000 * 60 * 60 * 24);
+        //Wenn Differenz zwischen aktuellem Datum und Ablaufdatum kleiner als 0 = Abgelaufen
         if (difference < 0)
             return true;
         else
@@ -228,6 +297,7 @@ var Filter;
         var currentDate = new Date();
         var difference = date.getTime() - currentDate.getTime();
         difference /= (1000 * 60 * 60 * 24);
+        //Differenz zwischen 0 und 3 Tagen = bald Abgelaufen
         if (difference > 0 && difference < 3)
             return true;
         else
@@ -236,16 +306,21 @@ var Filter;
     function loadIntoTable(items) {
         var newRow = document.createElement("tr");
         table.appendChild(newRow);
+        //Zum Zählen wie viel items in Reihe:
         var itemCounter = 0;
         for (var i = 0; i < items.length; i++) {
             var eintrag = document.createElement("td");
             var button = document.createElement("a");
+            //Date muss neu Instanziert werden mit Wert aus Datenbank:
             var expiryDate = new Date(items[i].expiryDate).toLocaleDateString();
+            //Inhalt des Item-Feldes
             button.innerHTML = items[i].category + " " + items[i].name + "<br>" + expiryDate;
+            //Link zur Detailseite:
             button.href = "detailedView.html?index=" + items[i].index;
             eintrag.appendChild(button);
             newRow.appendChild(eintrag);
             itemCounter++;
+            //Wenn so viel Items in der Reihe wie erlaubt -> neue Reihe hinzufügen für die folgenden Items
             if (itemCounter == itemsPerRow) {
                 newRow = document.createElement("tr");
                 table.appendChild(newRow);
@@ -253,39 +328,13 @@ var Filter;
             }
         }
     }
+    //Wird bei Laden der Seite aufgerufen um Menge an Elementen der Tabellenreihen responsiv zu machen:
     function defineItemsPerRow() {
         if (window.innerWidth < 500)
             itemsPerRow = 4;
         else
             itemsPerRow = 5;
     }
-    //LocalStorage Functions:
-    function storeFilterSettings(categoryValue, nameValue, expiredValue, soonExpiredValue) {
-        filterSettings = {
-            category: categoryValue,
-            name: nameValue,
-            expired: expiredValue,
-            soonExpired: soonExpiredValue
-        };
-        savedFilter = JSON.stringify(filterSettings);
-        localStorage.setItem("filterSettings", savedFilter);
-    }
-    function loadFilterSettings() {
-        if (localStorage.length < 1)
-            return;
-        filterSettings = null;
-        filterSettings = JSON.parse(localStorage.getItem("filterSettings"));
-        filterActive = false;
-        categoryFilter.value = filterSettings.category;
-        nameFilter.value = filterSettings.name;
-        filterExpired = filterSettings.expired;
-        if (filterExpired)
-            setExpired();
-        filterSoonExpired = filterSettings.soonExpired;
-        if (filterSoonExpired)
-            setSoonExpired();
-        activateFilter();
-        checkFilterCount();
-    }
+    //#endregion
 })(Filter || (Filter = {}));
 //# sourceMappingURL=Filter.js.map
